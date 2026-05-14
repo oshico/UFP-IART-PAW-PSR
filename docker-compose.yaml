@@ -1,0 +1,48 @@
+version: '3.9'
+
+services:
+  postgis_db:
+    image: postgis/postgis:latest
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB} 
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+
+  minio_bucket:
+    image: minio/minio:latest
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"
+    volumes:
+      - minio_data:/data
+
+  go_backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgis_db
+      - minio_bucket
+
+  react_:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5147:5147"
+    depends_on:
+      - postgis_db
+      - minio_bucket
+      - go_backend
+
+volumes:
+  postgis_data:
+  minio_data:
