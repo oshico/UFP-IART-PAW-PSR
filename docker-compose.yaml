@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   postgis_db:
     image: postgis/postgis:latest
@@ -8,7 +6,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgis_data:/var/lib/postgresql/data
     networks:
       - proxy
 

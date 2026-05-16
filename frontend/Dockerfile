@@ -17,7 +17,7 @@ WORKDIR /frontend
 
 RUN bun add -g serve
 
-COPY --from=builder /fronted/dist ./dist 
+COPY --from=builder /frontend/dist ./dist 
 
 EXPOSE 4173
 
