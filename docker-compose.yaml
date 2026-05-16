@@ -6,42 +6,78 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB} 
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - pgdata:/var/lib/postgresql
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - proxy
 
   minio_bucket:
     image: minio/minio:latest
+    command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-    ports:
-      - "9000:9000"
     volumes:
       - minio_data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.minio.rule=Host(`terrawatch-s3.${DOMAIN}`)"
+      - "traefik.http.routers.minio.entrypoints=websecure"
+      - "traefik.http.routers.minio.tls.certresolver=cloudflare"
+      - "traefik.http.services.minio.loadbalancer.server.port=9000"
+      - "traefik.http.routers.minio-console.rule=Host(`minio.${DOMAIN}`)"
+      - "traefik.http.routers.minio-console.entrypoints=websecure"
+      - "traefik.http.routers.minio-console.tls.certresolver=cloudflare"
+      - "traefik.http.routers.minio-console.service=minio-console"
+      - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
+    networks:
+      - proxy
 
   go_backend:
     build:
       context: ./Backend
       dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
+      args:
+        - DB_HOST=${DB_HOST}
+        - DB_USER=${DB_USER}
+        - DB_PASSWORD=${DB_PASSWORD}
+        - DB_NAME=${DB_NAME}
+        - DB_PORT=${DB_PORT}
     depends_on:
       - postgis_db
       - minio_bucket
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`terrawatch-api.${DOMAIN}`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=cloudflare"
+      - "traefik.http.services.backend.loadbalancer.server.port=8080"
+    networks:
+      - proxy
 
-  react_:
+  react_frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    ports:
-      - "5147:5147"
+      args:
+        - VITE_API_URL=${VITE_API_URL}
     depends_on:
       - postgis_db
       - minio_bucket
       - go_backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`terrawatch.${DOMAIN}`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=cloudflare"
+      - "traefik.http.services.frontend.loadbalancer.server.port=4173"
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
 
 volumes:
   postgis_data:
