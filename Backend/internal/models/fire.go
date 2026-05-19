@@ -29,7 +29,7 @@ type Fire struct {
 	Year  int `gorm:"column:year"`
 	Month int `gorm:"column:month"`
 	Day   int `gorm:"column:day"`
-	Hour  int `gorm:"column:hour`
+	Hour  int `gorm:"column:hour"`
 
 	// Data e hora das ocorrências
 	DateHourAlert             *time.Time `gorm:"column:date_hour_alert"`
