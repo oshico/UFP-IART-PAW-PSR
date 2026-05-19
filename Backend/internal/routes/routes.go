@@ -9,6 +9,6 @@ import (
 func SetupRoutes(r *gin.Engine) {
 	api := r.Group("/api/v1")
 	{
-		api.POST("/import/incendios", handlers.ImportIncendios)
+		api.POST("/import/Fires", handlers.ImportFire)
 	}
 }
