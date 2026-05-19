@@ -26,13 +26,20 @@ func Connect() {
     var err error
     DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
     if err != nil {
-        log.Fatal("Erro ao conectar à base de dados: ", err)
+        log.Fatal("Error connecting to database: ", err)
     }
 
-    err = DB.AutoMigrate(&models.Incendio{})
+    err = DB.AutoMigrate(
+        &models.Fire{},
+        &models.CauseGroup{},
+        &models.CauseDescription{},
+        &models.AlertSource{},
+        &models.CauseType{},
+    )
+
     if err != nil {
-        log.Fatal("Erro no AutoMigrate: ", err)
+        log.Fatal("Error in AutoMigrate: ", err)
     }
 
-    log.Println("Base de dados conectada!")
+    log.Println("Database connected!")
 }

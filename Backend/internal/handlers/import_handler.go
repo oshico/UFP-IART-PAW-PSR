@@ -51,7 +51,7 @@ func ImportIncendios(c *gin.Context) {
 	}
 
 	// 4. Processa linha a linha (ignora header — linha 0)
-	var batch []models.Incendio
+	var batch []models.Fire
 	totalImportados := 0
 	totalErros := 0
 
@@ -61,14 +61,14 @@ func ImportIncendios(c *gin.Context) {
 			continue // linha incompleta
 		}
 
-		incendio, err := parseRow(row)
+		Fire, err := parseRow(row)
 		if err != nil {
 			fmt.Printf("Erro na linha %d: %v\n", i+2, err)
 			totalErros++
 			continue
 		}
 
-		batch = append(batch, incendio)
+		batch = append(batch, Fire)
 
 		// Insere em batch para melhor performance
 		if len(batch) >= batchSize {
@@ -91,14 +91,14 @@ func ImportIncendios(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":   "Import concluído",
+		"message":    "Import concluído",
 		"importados": totalImportados,
-		"erros":     totalErros,
+		"erros":      totalErros,
 	})
 }
 
-// parseRow converte uma linha do XLSX numa struct Incendio
-func parseRow(row []string) (models.Incendio, error) {
+// parseRow converte uma linha do XLSX numa struct Fire
+func parseRow(row []string) (models.Fire, error) {
 	get := func(i int) string {
 		if i < len(row) {
 			return row[i]
@@ -140,56 +140,35 @@ func parseRow(row []string) (models.Incendio, error) {
 		return nil
 	}
 
-	toNullableString := func(s string) *string {
-		if s == "" {
-			return nil
-		}
-		return &s
+	// toNullableString := func(s string) *string {
+	// 	if s == "" {
+	// 		return nil
+	// 	}
+	// 	return &s
+	// }
+
+	Fire := models.Fire{
+		Date: toTime(get(11)),
+		Hour: toFloat(get(11)),
+
+		DateHourAlert:             toTime(get(11)),
+		DateHourFirstIntervention: toTime(get(12)),
+		DateHourExtinguish:        toTime(get(13)),
+		DurationHours:             toFloat(get(14)),
+
+		District: get(17),
+		County:   get(18),
+		Parish:   get(19),
+		Local:    get(20),
+
+		Lat:  toFloat(get(25)),
+		Long: toFloat(get(26)),
+
+		CauseType:          get(36),
+		CauseGroupID:       toInt(get(37)),
+		CauseDescriptionID: toInt(get(39)),
+		AlertSourceID:      toInt(get(40)),
 	}
 
-	incendio := models.Incendio{
-		CodigoSGIF:                  get(0),
-		CodigoANEPC:                 toInt64(get(1)),
-		Ano:                         toInt(get(2)),
-		Mes:                         toInt(get(3)),
-		Dia:                         toInt(get(4)),
-		Hora:                        toInt(get(5)),
-		AreaPovHa:                   toFloat(get(6)),
-		AreaMatoHa:                  toFloat(get(7)),
-		AreaAgricHa:                 toFloat(get(8)),
-		AreaTotalHa:                 toFloat(get(9)),
-		ClasseArea:                  get(10),
-		DataHoraAlerta:              toTime(get(11)),
-		DataHoraPrimeiraIntervencao: toTime(get(12)),
-		DataHoraExtincao:            toTime(get(13)),
-		DuracaoHoras:                toFloat(get(14)),
-		IncSup24Horas:               toInt(get(15)),
-		DTCCFR:                      toInt(get(16)),
-		Distrito:                    get(17),
-		Concelho:                    get(18),
-		Freguesia:                   get(19),
-		Local:                       get(20),
-		RNAP:                        toNullableString(get(21)),
-		RNMPF:                       toNullableString(get(22)),
-		XMilitar:                    toInt(get(23)),
-		YMilitar:                    toInt(get(24)),
-		Latitude:                    toFloat(get(25)),
-		Longitude:                   toFloat(get(26)),
-		XETRS89:                     toFloat(get(27)),
-		YETRS89:                     toFloat(get(28)),
-		DSR:                         toFloat(get(29)),
-		FWI:                         toFloat(get(30)),
-		ISI:                         toFloat(get(31)),
-		DC:                          toFloat(get(32)),
-		DMC:                         toFloat(get(33)),
-		FFMC:                        toFloat(get(34)),
-		BUI:                         toFloat(get(35)),
-		CodCausa:                    toInt(get(36)),
-		TipoCausa:                   get(37),
-		GrupoCausa:                  get(38),
-		DescricaoCausa:              get(39),
-		FonteAlerta:                 get(40),
-	}
-
-	return incendio, nil
+	return Fire, nil
 }
