@@ -210,10 +210,10 @@ func parseRow(row []string) (models.Fire, bool) {
 	// }
 
 	Fire := models.Fire{
-		Year:  toInt(get(1)),
-		Month: toInt(get(2)),
-		Day:   toInt(get(3)),
-		Hour:  toInt(get(4)),
+		Year:  toInt(get(2)),
+		Month: toInt(get(3)),
+		Day:   toInt(get(4)),
+		Hour:  toInt(get(5)),
 
 		DateHourAlert:             toTime(get(11)),
 		DateHourFirstIntervention: toTime(get(12)),

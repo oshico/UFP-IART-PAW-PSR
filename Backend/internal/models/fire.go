@@ -3,18 +3,18 @@ package models
 import "time"
 
 type CauseGroup struct {
-	ID          uint   `gorm:"primaryKey;autoIncrement; not null"`
-	Description string `gorm:"column:description;size:200; not null; uniqueIndex"`
+	ID          uint   `gorm:"primaryKey;autoIncrement"`
+	Description string `gorm:"column:description;size:200; uniqueIndex"`
 }
 
 type CauseDescription struct {
-	ID          uint   `gorm:"primaryKey;autoIncrement; not null"`
-	Description string `gorm:"column:description; size:200; not null; uniqueIndex"`
+	ID          uint   `gorm:"primaryKey;autoIncrement"`
+	Description string `gorm:"column:description; size:200; uniqueIndex"`
 }
 
 type AlertSource struct {
-	ID          uint   `gorm:"primaryKey; autoIncrement; not null"`
-	Description string `gorm:"column:decription; size:200; not null; uniqueIndex"`
+	ID          uint   `gorm:"primaryKey; autoIncrement"`
+	Description string `gorm:"column:description; size:200; uniqueIndex"`
 }
 
 // type CauseType struct {
@@ -38,23 +38,23 @@ type Fire struct {
 	DurationHours             float64    `gorm:"column:duration_hours"`
 
 	// Local
-	District string `gorm:"column:district;size:100; not null"`
-	County   string `gorm:"column:county;size:100; not null"`
-	Parish   string `gorm:"column:parish;size:100; not null"`
-	Local    string `gorm:"column:local;size:200; not null"`
+	District string `gorm:"column:district;size:100;"`
+	County   string `gorm:"column:county;size:100;"`
+	Parish   string `gorm:"column:parish;size:100;"`
+	Local    string `gorm:"column:local;size:200;"`
 
 	// Coordenadas
-	Lat  float64 `gorm:"column:lat; not null"`
-	Long float64 `gorm:"column:long; not null"`
+	Lat  float64 `gorm:"column:lat;"`
+	Long float64 `gorm:"column:long;"`
 
 	// Causa
 	CauseType          string `gorm:"column:id_grupo_causa; size:100"`
-	CauseGroupID       *uint  `gorm:"column:cause_group_id; not null"`
-	CauseDescriptionID *uint  `gorm:"column:description_cause_id; not null"`
-	AlertSourceID      *uint  `gorm:"column:alert_source_id; not null"`
+	CauseGroupID       *uint  `gorm:"column:cause_group_id;"`
+	CauseDescriptionID *uint  `gorm:"column:description_cause_id;"`
+	AlertSourceID      *uint  `gorm:"column:alert_source_id;"`
 
 	// relações
-	CauseGroup       *CauseGroup       `gorm:"foreignKey:CauseGroupID; not null"`
-	CauseDescription *CauseDescription `gorm:"foreignKey:CauseDescriptionID; not null"`
-	AlertSource      *AlertSource      `gorm:"foreignKey:AlertSourceID; not null"`
+	CauseGroup       *CauseGroup       `gorm:"foreignKey:CauseGroupID;"`
+	CauseDescription *CauseDescription `gorm:"foreignKey:CauseDescriptionID;"`
+	AlertSource      *AlertSource      `gorm:"foreignKey:AlertSourceID;"`
 }
