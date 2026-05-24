@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/internal/handlers"
+	"backend/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,7 +10,16 @@ import (
 func SetupRoutes(r *gin.Engine) {
 	api := r.Group("/api/v1")
 	{
-		api.POST("/import/Fires", handlers.ImportFire)
+
+		Import := api.Group("/import")
+		{
+			Import.POST("/fires", handlers.ImportFire)
+		}
+
+		fires := api.Group("/locations")
+		{
+			fires.GET("/fires", handlers.GetFireLocations)
+		}
 
 		auth := api.Group("/auth")
 		{
