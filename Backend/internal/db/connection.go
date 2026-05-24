@@ -29,10 +29,18 @@ func Connect() {
         log.Fatal("Erro ao conectar à base de dados: ", err)
     }
 
-    err = DB.AutoMigrate(&models.Incendio{})
-    if err != nil {
-        log.Fatal("Erro no AutoMigrate: ", err)
-    }
+	err = DB.AutoMigrate(
+		&models.CauseGroup{},
+		&models.CauseDescription{},
+		&models.AlertSource{},
+		&models.Fire{},
+		&models.User{},
+		&models.RefreshToken{},
+	)
+
+	if err != nil {
+		log.Fatal("Error in AutoMigrate: ", err)
+	}
 
     log.Println("Base de dados conectada!")
 }
