@@ -92,9 +92,28 @@ func ImportFire(c *gin.Context) {
 	}
 	defer xlsx.Close()
 
-	rows, err := xlsx.GetRows("SGIF_2021_2025")
+	sheets := []string{
+		"SGIF_2001_2010",
+		"SGIF_2011_2020",
+		"SGIF_2021_2025",
+	}
+
+	var sheetName string
+	for _, s := range sheets {
+		if _, err := xlsx.GetRows(s); err == nil {
+			sheetName = s
+			break
+		}
+	}
+
+	if sheetName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No valid sheet found. Expected SGIF_2001_2010, SGIF_2011_2020 or SGIF_2021_2025"})
+		return
+	}
+
+	rows, err := xlsx.GetRows(sheetName)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Sheet 'SGIF_2021_2025' not found"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error reading sheet"})
 		return
 	}
 
