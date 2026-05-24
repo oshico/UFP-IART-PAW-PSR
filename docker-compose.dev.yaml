@@ -23,6 +23,9 @@ services:
       - DB_PASSWORD=postgres
       - DB_NAME=terrawatch
       - DB_PORT=5432
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - JWT_ACCESS_EXPIRY=15m
+      - JWT_REFRESH_EXPIRY=720h
     ports:
       - "8080:8080"
 
