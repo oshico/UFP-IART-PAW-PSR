@@ -11,9 +11,23 @@ import (
 )
 
 func GetFireLocations(c *gin.Context) {
+
+	year := c.Query("year")
+	local := c.Query("local")
+
+	query := db.DB.Select("local, lat, long, year, month, day, hour")
+
+	if year != "" {
+		query = query.Where("year = ?", year)
+	}
+
+	if local != "" {
+		query = query.Where("local ILIKE ?", local)
+	}
+
 	var fireLocations []models.Fire
 
-	if result := db.DB.Select("local, lat, long, year, month, day, hour").Find(&fireLocations); result.Error != nil {
+	if result := query.Find(&fireLocations); result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 		return
 	}
@@ -27,7 +41,6 @@ func GetFireLocations(c *gin.Context) {
 	}
 
 	var response []FireLocation
-
 	for _, f := range fireLocations {
 		date := ""
 		if f.Year != 0 && f.Month != 0 && f.Day != 0 {
