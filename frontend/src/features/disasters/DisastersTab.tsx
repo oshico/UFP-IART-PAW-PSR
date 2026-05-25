@@ -1,10 +1,10 @@
-import { TimeFilter } from "../../components/timeFilter/TimeFilter.tsx";
+import { FilterBar } from "../../components/filterBar/FilterBar";
 import { MapView } from "../map/MapView";
 
 export function DisastersTab() {
 	return (
 		<div className="tab-content">
-			<TimeFilter />
+			<FilterBar />
 			<MapView />
 		</div>
 	);
