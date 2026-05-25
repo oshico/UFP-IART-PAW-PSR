@@ -2,7 +2,8 @@ import { useState } from "react";
 import "./styles/FilterBar.css";
 
 export interface FilterValues {
-	year?: string;
+	startDate?: string;
+	endDate?: string;
 	local?: string;
 }
 
@@ -12,19 +13,22 @@ interface FilterBarProps {
 }
 
 export function FilterBar({ onFilterChange, defaultValues }: FilterBarProps) {
-	const [year, setYear] = useState(defaultValues?.year ?? "");
+	const [startDate, setStartDate] = useState(defaultValues?.startDate ?? "");
+	const [endDate, setEndDate] = useState(defaultValues?.endDate ?? "");
 	const [local, setLocal] = useState(defaultValues?.local ?? "");
 
 	function handleApply() {
 		const filters: FilterValues = {};
-		if (year.trim()) filters.year = year.trim();
+		if (startDate.trim()) filters.startDate = startDate.trim();
+		if (endDate.trim()) filters.endDate = endDate.trim();
 		if (local.trim()) filters.local = local.trim();
 		onFilterChange?.(filters);
 	}
 
 	function handleReset() {
 		const defaults = defaultValues ?? {};
-		setYear(defaults.year ?? "");
+		setStartDate(defaults.startDate ?? "");
+		setEndDate(defaults.endDate ?? "");
 		setLocal(defaults.local ?? "");
 		onFilterChange?.(defaults);
 	}
@@ -33,15 +37,21 @@ export function FilterBar({ onFilterChange, defaultValues }: FilterBarProps) {
 		<div className="filter-bar">
 			<div className="filter-bar-fields">
 				<div className="form-group-inline">
-					<label htmlFor="filter-year">Year</label>
+					<label htmlFor="filter-start">From</label>
 					<input
-						id="filter-year"
-						type="number"
-						placeholder="e.g. 2023"
-						value={year}
-						onChange={(e) => setYear(e.target.value)}
-						min={2001}
-						max={2030}
+						id="filter-start"
+						type="date"
+						value={startDate}
+						onChange={(e) => setStartDate(e.target.value)}
+					/>
+				</div>
+				<div className="form-group-inline">
+					<label htmlFor="filter-end">To</label>
+					<input
+						id="filter-end"
+						type="date"
+						value={endDate}
+						onChange={(e) => setEndDate(e.target.value)}
 					/>
 				</div>
 				<div className="form-group-inline">
