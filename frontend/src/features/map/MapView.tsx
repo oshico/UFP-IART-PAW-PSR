@@ -1,3 +1,4 @@
+import L from "leaflet";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import { LoadingSpinner } from "../../components/loadingSpinner/LoadingSpinner.tsx";
 import { DEFAULT_ZOOM, PORTUGAL_CENTER } from "../../utils/constants";
@@ -8,12 +9,26 @@ export interface MapMarker {
 	lng: number;
 	title: string;
 	description?: string;
+	type?: "fire" | "rain";
 }
 
 interface MapViewProps {
 	isLoading?: boolean;
 	height?: string;
 	markers?: MapMarker[];
+}
+
+function createIcon(type?: string): L.DivIcon {
+	return L.divIcon({
+		className: "",
+		html:
+			type === "rain"
+				? '<div class="marker-circle marker-rain">🌧️</div>'
+				: '<div class="marker-circle marker-fire">🔥</div>',
+		iconSize: [32, 32],
+		iconAnchor: [16, 16],
+		popupAnchor: [0, -20],
+	});
 }
 
 export function MapView({
@@ -37,7 +52,11 @@ export function MapView({
 				/>
 
 				{markers.map((m, i) => (
-					<Marker key={i} position={[m.lat, m.lng]}>
+					<Marker
+						key={i}
+						position={[m.lat, m.lng]}
+						icon={createIcon(m.type)}
+					>
 						<Popup>
 							<strong>{m.title}</strong>
 							{m.description && <br />}

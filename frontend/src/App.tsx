@@ -6,11 +6,12 @@ import { ProtectedRoute } from "./features/auth/ProtectedRoute";
 import { DisastersTab } from "./features/disasters/DisastersTab";
 import { FiresTab } from "./features/fires/FiresTab";
 import { PredictionsTab } from "./features/prediction/PredictionsTab";
+import { RainTab } from "./features/rain/RainTab";
 import { RescuesTab } from "./features/rescues/RescuesTab";
 import type { EventType } from "./types/events";
 import "./App.css";
 
-type TabType = EventType | "prediction";
+type TabType = EventType | "prediction" | "rain";
 
 function App() {
 	const [activeTab, setActiveTab] = useState<TabType>("fire");
@@ -24,6 +25,7 @@ function App() {
 					{activeTab === "disaster" && <DisastersTab />}
 					{activeTab === "rescue" && <RescuesTab />}
 					{activeTab === "accident" && <AccidentsTab />}
+					{activeTab === "rain" && <RainTab />}
 					{activeTab === "prediction" && (
 						<ProtectedRoute>
 							<PredictionsTab />
