@@ -21,9 +21,10 @@ export function useRainData(filters?: FilterValues): UseRainDataResult {
 			setIsLoading(true);
 			setError(null);
 
-			const hasFilters = filters?.year || filters?.local;
+			const year = filters?.startDate?.slice(0, 4);
+			const hasFilters = year || filters?.local;
 			const result = await getRainLocations(
-				hasFilters ? { year: filters?.year, city: filters?.local } : undefined,
+				hasFilters ? { year, city: filters?.local } : undefined,
 			);
 			if (cancelled) return;
 
@@ -40,7 +41,7 @@ export function useRainData(filters?: FilterValues): UseRainDataResult {
 		return () => {
 			cancelled = true;
 		};
-	}, [filters?.year, filters?.local]);
+	}, [filters?.startDate, filters?.local]);
 
 	return { locations, isLoading, error };
 }
