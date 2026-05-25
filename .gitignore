@@ -1,3 +1,7 @@
+# General
+
+.idea/*
+
 # Backend
 
 Backend/.idea/*
@@ -30,3 +34,5 @@ frontend/*.sw?
 # Secrets
 
 .env
+Backend/.env
+fronted/.env
