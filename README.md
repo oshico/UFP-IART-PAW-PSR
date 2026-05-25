@@ -72,7 +72,7 @@ The server starts on `http://localhost:8080`.
 | `DB_PORT` | `5432` | PostgreSQL port |
 | `DB_USER` | `postgres` | Database user |
 | `DB_PASSWORD` | `password` | Database password |
-| `DB_NAME` | `incendios` | Database name |
+| `DB_NAME` | `terrawatch` | Database name |
 | `JWT_SECRET` | `default-secret-...` | JWT signing key |
 | `JWT_ACCESS_EXPIRY` | `15m` | Access token lifetime |
 | `JWT_REFRESH_EXPIRY` | `720h` | Refresh token lifetime |
@@ -286,7 +286,7 @@ If not set, the backend defaults to allowing `localhost:5173` and `localhost:417
 # Terminal 1 — Backend
 cd Backend
 cp .env.example .env
-# Edit .env with your local PostgreSQL credentials (DB_HOST=localhost, DB_NAME=incendios)
+# Edit .env with your local PostgreSQL credentials (DB_HOST=localhost, DB_NAME=terrawatch)
 air
 
 # Terminal 2 — Frontend
