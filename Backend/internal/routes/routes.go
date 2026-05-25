@@ -20,7 +20,7 @@ func SetupRoutes(r *gin.Engine) {
 		locations := api.Group("/locations")
 		{
 			locations.GET("/fires", handlers.GetFireLocations)
-			// locations.GET("/rains", handlers.GetRainLocations)
+			locations.GET("/rains", handlers.GetRainLocations)
 		}
 
 		auth := api.Group("/auth")
