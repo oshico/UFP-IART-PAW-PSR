@@ -29,7 +29,7 @@ export function LoginModal({
 			setPassword("");
 			onClose();
 		} else {
-			setError("Login failed. Backend not available yet.");
+			setError("Login failed. Check your email and password.");
 		}
 	}
 
