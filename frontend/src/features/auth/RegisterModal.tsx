@@ -36,7 +36,7 @@ export function RegisterModal({
 			setPassword("");
 			onClose();
 		} else {
-			setError("Registration failed. Backend not available yet.");
+			setError("Registration failed. The email may already be registered.");
 		}
 	}
 

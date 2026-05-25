@@ -2,6 +2,7 @@ import { createContext, type ReactNode, useCallback, useState } from "react";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import {
 	login as apiLogin,
+	logout as apiLogout,
 	register as apiRegister,
 } from "../../services/auth";
 import type { User } from "../../types/auth";
@@ -12,7 +13,7 @@ interface AuthContextType {
 	isLoading: boolean;
 	login: (email: string, password: string) => Promise<boolean>;
 	register: (name: string, email: string, password: string) => Promise<boolean>;
-	logout: () => void;
+	logout: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -70,7 +71,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 		[setUser, setTokens],
 	);
 
-	const logout = useCallback(() => {
+	const logout = useCallback(async () => {
+		await apiLogout();
 		setUser(null);
 		setTokens(null);
 	}, [setUser, setTokens]);

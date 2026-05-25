@@ -1,8 +1,7 @@
 export interface User {
-	id: string;
+	id: number;
 	email: string;
 	name: string;
-	createdAt: string;
 }
 
 export interface LoginCredentials {
