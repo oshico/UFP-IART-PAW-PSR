@@ -7,7 +7,10 @@ import { MapView, type MapMarker } from "../map/MapView";
 import { useFiresData } from "./hooks/useFiresData";
 
 export function FiresTab() {
-	const [filters, setFilters] = useState<FilterValues>({ year: "2025" });
+	const [filters, setFilters] = useState<FilterValues>({
+		startDate: "2025-01-01",
+		endDate: "2025-12-31",
+	});
 	const { locations, isLoading, error } = useFiresData(filters);
 
 	const markers: MapMarker[] = locations.map((loc) => ({
@@ -19,7 +22,10 @@ export function FiresTab() {
 
 	return (
 		<div className="tab-content">
-			<FilterBar onFilterChange={setFilters} defaultValues={{ year: "2025" }} />
+			<FilterBar
+				onFilterChange={setFilters}
+				defaultValues={{ startDate: "2025-01-01", endDate: "2025-12-31" }}
+			/>
 			{error && <div className="error-banner">{error}</div>}
 			<MapView isLoading={isLoading} markers={markers} />
 		</div>

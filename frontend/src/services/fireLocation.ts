@@ -10,10 +10,11 @@ export interface FireLocation {
 }
 
 export async function getFireLocations(
-	params?: { year?: string; local?: string },
+	params?: { startDate?: string; endDate?: string; local?: string },
 ): Promise<ApiResponse<FireLocation[]>> {
 	const qs = new URLSearchParams();
-	if (params?.year) qs.set("year", params.year);
+	if (params?.startDate) qs.set("startDate", params.startDate);
+	if (params?.endDate) qs.set("endDate", params.endDate);
 	if (params?.local) qs.set("local", params.local);
 	const query = qs.toString();
 	return apiGet<FireLocation[]>(`/locations/fires${query ? `?${query}` : ""}`);
