@@ -14,11 +14,13 @@ func SetupRoutes(r *gin.Engine) {
 		Import := api.Group("/import")
 		{
 			Import.POST("/fires", handlers.ImportFire)
+			Import.POST("/rains", handlers.ImportRain)
 		}
 
-		fires := api.Group("/locations")
+		locations := api.Group("/locations")
 		{
-			fires.GET("/fires", handlers.GetFireLocations)
+			locations.GET("/fires", handlers.GetFireLocations)
+			// locations.GET("/rains", handlers.GetRainLocations)
 		}
 
 		auth := api.Group("/auth")
