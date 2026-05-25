@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import type { FilterValues } from "../../components/filterBar/FilterBar";
-import type { RainLocation } from "../../services/rainLocation";
-import { getRainLocations } from "../../services/rainLocation";
+import type { FilterValues } from "../../../components/filterBar/FilterBar";
+import type { RainLocation } from "../../../services/rainLocation";
+import { getRainLocations } from "../../../services/rainLocation";
 
 interface UseRainDataResult {
 	locations: RainLocation[];
@@ -23,9 +23,7 @@ export function useRainData(filters?: FilterValues): UseRainDataResult {
 
 			const hasFilters = filters?.year || filters?.local;
 			const result = await getRainLocations(
-				hasFilters
-					? { year: filters?.year, city: filters?.local }
-					: undefined,
+				hasFilters ? { year: filters?.year, city: filters?.local } : undefined,
 			);
 			if (cancelled) return;
 
