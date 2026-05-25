@@ -75,6 +75,58 @@ export async function apiPost<T>(
 	});
 }
 
+export async function apiUpload<T>(
+	endpoint: string,
+	formData: FormData,
+	options?: FetchOptions,
+): Promise<ApiResponse<T>> {
+	const { requiresAuth = false, ...fetchOptions } = options || {};
+
+	const headers: Record<string, string> = {
+		...((fetchOptions.headers as Record<string, string>) || {}),
+	};
+
+	if (requiresAuth) {
+		const token = await getAccessToken();
+		if (token) {
+			headers.Authorization = `Bearer ${token}`;
+		}
+	}
+
+	try {
+		const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+			...fetchOptions,
+			method: "POST",
+			headers,
+			body: formData,
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => null);
+			return {
+				success: false,
+				data: null as unknown as T,
+				error:
+					errorData?.error ||
+					errorData?.message ||
+					`HTTP ${response.status}: ${response.statusText}`,
+			};
+		}
+
+		const data = await response.json();
+		return {
+			success: true,
+			data: data.data ?? data,
+		};
+	} catch (err) {
+		return {
+			success: false,
+			data: null as unknown as T,
+			error: err instanceof Error ? err.message : "Network error",
+		};
+	}
+}
+
 export async function apiDelete<T>(
 	endpoint: string,
 	options?: FetchOptions,
