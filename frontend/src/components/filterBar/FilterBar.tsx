@@ -8,11 +8,12 @@ export interface FilterValues {
 
 interface FilterBarProps {
 	onFilterChange?: (filters: FilterValues) => void;
+	defaultValues?: FilterValues;
 }
 
-export function FilterBar({ onFilterChange }: FilterBarProps) {
-	const [year, setYear] = useState("");
-	const [local, setLocal] = useState("");
+export function FilterBar({ onFilterChange, defaultValues }: FilterBarProps) {
+	const [year, setYear] = useState(defaultValues?.year ?? "");
+	const [local, setLocal] = useState(defaultValues?.local ?? "");
 
 	function handleApply() {
 		const filters: FilterValues = {};
@@ -22,9 +23,10 @@ export function FilterBar({ onFilterChange }: FilterBarProps) {
 	}
 
 	function handleReset() {
-		setYear("");
-		setLocal("");
-		onFilterChange?.({});
+		const defaults = defaultValues ?? {};
+		setYear(defaults.year ?? "");
+		setLocal(defaults.local ?? "");
+		onFilterChange?.(defaults);
 	}
 
 	return (
