@@ -21,9 +21,15 @@ export function useFiresData(filters?: FilterValues): UseFiresDataResult {
 			setIsLoading(true);
 			setError(null);
 
+			const hasFilters =
+				filters?.startDate || filters?.endDate || filters?.local;
 			const result = await getFireLocations(
-				filters?.year || filters?.local
-					? { year: filters.year, local: filters.local }
+				hasFilters
+					? {
+							startDate: filters?.startDate,
+							endDate: filters?.endDate,
+							local: filters?.local,
+						}
 					: undefined,
 			);
 			if (cancelled) return;
@@ -41,7 +47,7 @@ export function useFiresData(filters?: FilterValues): UseFiresDataResult {
 		return () => {
 			cancelled = true;
 		};
-	}, [filters?.year, filters?.local]);
+	}, [filters?.startDate, filters?.endDate, filters?.local]);
 
 	return { locations, isLoading, error };
 }

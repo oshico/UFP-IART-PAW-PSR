@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -12,7 +14,7 @@ import (
 	"backend/internal/models"
 )
 
-const batchSize = 500 // insere 500 registos de cada vez
+const batchSize = 500
 
 var (
 	groupCauseCache       = map[string]uint{}
@@ -66,29 +68,47 @@ func getOrCreateAlertSource(description string) *uint {
 }
 
 func ImportFire(c *gin.Context) {
-	// limpar a cache
-	groupCauseCache = map[string]uint{}
-	descriptionCauseCache = map[string]uint{}
-	alertSourceCache = map[string]uint{}
-
 	fileHeader, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "File not found. Use 'file' field."})
 		return
 	}
 
-	// Abre o ficheiro em memória (sempre sem o guardar)
-	file, err := fileHeader.Open()
+	task := GlobalTaskStore.CreateTask()
+	dst := fmt.Sprintf("/tmp/%s.xlsx", task.ID)
+	if err := c.SaveUploadedFile(fileHeader, dst); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+		return
+	}
+
+	go processFireImport(task.ID, dst)
+
+	c.JSON(http.StatusAccepted, gin.H{"task_id": task.ID})
+}
+
+func processFireImport(taskID, filePath string) {
+	GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+		t.Status = TaskStatusProcessing
+	})
+
+	file, err := os.Open(filePath)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error opening file"})
+		GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+			t.Status = TaskStatusError
+			t.ErrorMsg = "Error opening saved file"
+		})
 		return
 	}
 	defer file.Close()
+	defer os.Remove(filePath)
 
-	// Parse do XLSX direto do 'reader'
 	xlsx, err := excelize.OpenReader(file)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or corrupted file"})
+		GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+			t.Status = TaskStatusError
+			t.ErrorMsg = "Invalid or corrupted file"
+		})
+		return
 	}
 	defer xlsx.Close()
 
@@ -107,22 +127,34 @@ func ImportFire(c *gin.Context) {
 	}
 
 	if sheetName == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "No valid sheet found. Expected SGIF_2001_2010, SGIF_2011_2020 or SGIF_2021_2025"})
+		GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+			t.Status = TaskStatusError
+			t.ErrorMsg = "No valid sheet found. Expected SGIF_2001_2010, SGIF_2011_2020 or SGIF_2021_2025"
+		})
 		return
 	}
 
 	rows, err := xlsx.GetRows(sheetName)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error reading sheet"})
+		GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+			t.Status = TaskStatusError
+			t.ErrorMsg = "Error reading sheet"
+		})
 		return
 	}
 
 	if len(rows) < 2 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "File contains no data"})
+		GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+			t.Status = TaskStatusError
+			t.ErrorMsg = "File contains no data"
+		})
 		return
 	}
 
-	// Processa linha a linha, ignora 'header' q é a linha 0
+	groupCauseCache = map[string]uint{}
+	descriptionCauseCache = map[string]uint{}
+	alertSourceCache = map[string]uint{}
+
 	var batch []models.Fire
 	totalImported := 0
 	totalErrors := 0
@@ -136,34 +168,42 @@ func ImportFire(c *gin.Context) {
 
 		batch = append(batch, fire)
 
-		// Insere em batch para melhor performance
 		if len(batch) >= batchSize {
 			if result := db.DB.Create(&batch); result.Error != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+				GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+					t.Status = TaskStatusError
+					t.ErrorMsg = result.Error.Error()
+				})
 				return
 			}
 			totalImported += len(batch)
 			batch = batch[:0]
+
+			GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+				t.Imported = totalImported
+				t.Errors = totalErrors
+			})
 		}
 	}
 
-	// Insere o restante
 	if len(batch) > 0 {
 		if result := db.DB.Create(&batch); result.Error != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+			GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+				t.Status = TaskStatusError
+				t.ErrorMsg = result.Error.Error()
+			})
 			return
 		}
 		totalImported += len(batch)
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message":  "Import completed",
-		"imported": totalImported,
-		"errors":   totalErrors,
+	GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+		t.Status = TaskStatusDone
+		t.Imported = totalImported
+		t.Errors = totalErrors
 	})
 }
 
-// parseRow converte uma linha do XLSX numa struct Fire
 func parseRow(row []string) (models.Fire, bool) {
 	if len(row) < 41 {
 		return models.Fire{}, false
@@ -180,11 +220,6 @@ func parseRow(row []string) (models.Fire, bool) {
 		v, _ := strconv.Atoi(s)
 		return v
 	}
-
-	// toInt64 := func(s string) int64 {
-	// 	v, _ := strconv.ParseInt(s, 10, 64)
-	// 	return v
-	// }
 
 	toFloat := func(s string) float64 {
 		v, _ := strconv.ParseFloat(s, 64)
@@ -212,21 +247,6 @@ func parseRow(row []string) (models.Fire, bool) {
 		}
 		return nil
 	}
-
-	// toUintOrZero := func(s string) uint {
-	// 	v, err := strconv.Atoi(s)
-	// 	if err != nil {
-	// 		return 0
-	// 	}
-	// 	return uint(v)
-	// }
-
-	// toNullableString := func(s string) *string {
-	// 	if s == "" {
-	// 		return nil
-	// 	}
-	// 	return &s
-	// }
 
 	Fire := models.Fire{
 		Year:  toInt(get(2)),
