@@ -14,6 +14,7 @@ func SetupRoutes(r *gin.Engine) {
 		Import := api.Group("/import")
 		{
 			Import.POST("/fires", handlers.ImportFire)
+			Import.GET("/status/:taskID", handlers.GetImportStatus)
 		}
 
 		fires := api.Group("/locations")
