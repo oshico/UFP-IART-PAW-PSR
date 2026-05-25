@@ -7,7 +7,8 @@ import { MapView, type MapMarker } from "../map/MapView";
 import { useRainData } from "./hooks/useRainData";
 
 const DEFAULT_FILTERS: FilterValues = {
-	year: "2025",
+	startDate: "2025-01-01",
+	endDate: "2025-12-31",
 };
 
 export function RainTab() {
