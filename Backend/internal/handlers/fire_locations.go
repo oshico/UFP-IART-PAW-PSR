@@ -13,6 +13,8 @@ import (
 func GetFireLocations(c *gin.Context) {
 
 	year := c.Query("year")
+	month := c.Query("month")
+	day := c.Query("day")
 	local := c.Query("local")
 
 	query := db.DB.Select("local, lat, long, year, month, day, hour")
@@ -23,6 +25,14 @@ func GetFireLocations(c *gin.Context) {
 
 	if local != "" {
 		query = query.Where("local ILIKE ?", local)
+	}
+
+	if month != "" {
+		query = query.Where("month = ?", month)
+	}
+
+	if day != "" {
+		query = query.Where("day = ?", day)
 	}
 
 	var fireLocations []models.Fire
