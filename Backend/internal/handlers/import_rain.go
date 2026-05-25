@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -19,23 +21,50 @@ func ImportRain(c *gin.Context) {
 		return
 	}
 
-	file, err := fileHeader.Open()
+	task := GlobalTaskStore.CreateTask()
+	dst := fmt.Sprintf("/tmp/%s.xlsx", task.ID)
+	if err := c.SaveUploadedFile(fileHeader, dst); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+		return
+	}
+
+	go processRainImport(task.ID, dst)
+
+	c.JSON(http.StatusAccepted, gin.H{"task_id": task.ID})
+}
+
+func processRainImport(taskID, filePath string) {
+	GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+		t.Status = TaskStatusProcessing
+	})
+
+	file, err := os.Open(filePath)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error opening file"})
+		GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+			t.Status = TaskStatusError
+			t.ErrorMsg = "Error opening saved file"
+		})
 		return
 	}
 	defer file.Close()
+	defer os.Remove(filePath)
 
 	xlsx, err := excelize.OpenReader(file)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or corrupted file"})
+		GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+			t.Status = TaskStatusError
+			t.ErrorMsg = "Invalid or corrupted file"
+		})
 		return
 	}
 	defer xlsx.Close()
 
 	rows, err := xlsx.GetRows("Quadro")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Sheet 'Quadro' not found"})
+		GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+			t.Status = TaskStatusError
+			t.ErrorMsg = "Sheet 'Quadro' not found"
+		})
 		return
 	}
 
@@ -46,6 +75,7 @@ func ImportRain(c *gin.Context) {
 
 	headers := rows[7]
 	totalImported := 0
+	totalErrors := 0
 
 	for _, row := range rows[8:] {
 		if len(row) == 0 || strings.TrimSpace(row[0]) == "" {
@@ -90,15 +120,24 @@ func ImportRain(c *gin.Context) {
 			}
 
 			if result := db.DB.Create(&entry); result.Error != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+				GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+					t.Status = TaskStatusError
+					t.ErrorMsg = result.Error.Error()
+				})
 				return
 			}
 			totalImported++
 		}
+
+		GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+			t.Imported = totalImported
+			t.Errors = totalErrors
+		})
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message":  "Rain import completed",
-		"imported": totalImported,
+	GlobalTaskStore.UpdateTask(taskID, func(t *ImportTask) {
+		t.Status = TaskStatusDone
+		t.Imported = totalImported
+		t.Errors = totalErrors
 	})
 }
