@@ -2,9 +2,9 @@ name: Deploy to Homelab
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, development]
   push:
-    branches: [main]
+    branches: [main, development]
   workflow_dispatch:
 
 jobs:
@@ -17,11 +17,11 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
-      - name: Install & Lint (Frontend)
+      - name: Install , Lint and Format (Frontend)
         working-directory: ./frontend
         run: |
           bun install
-          bun run lint
+          bun run biome check
 
       - name: Build (Frontend)
         working-directory: ./frontend
@@ -44,7 +44,7 @@ jobs:
     name: Deploy to Homelab
     needs: checks
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
 
     steps:
       - name: SSH Deploy
