@@ -1,0 +1,103 @@
+.app {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+.app-main {
+	flex: 1;
+}
+
+.tab-content {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.tab-predictions {
+	padding: 48px 24px;
+	min-height: 400px;
+}
+
+.predictions-placeholder {
+	max-width: 600px;
+	margin: 0 auto;
+	text-align: center;
+}
+
+.predictions-placeholder h3 {
+	font-size: 24px;
+	color: var(--text-h);
+	margin: 0 0 12px;
+}
+
+.predictions-placeholder p {
+	color: var(--text);
+	margin: 0 0 8px;
+}
+
+.placeholder-note {
+	font-size: 14px;
+	opacity: 0.7;
+}
+
+.protected-route {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 48px 24px;
+	min-height: 400px;
+}
+
+.protected-message {
+	text-align: center;
+	max-width: 400px;
+}
+
+.protected-message h3 {
+	font-size: 20px;
+	color: var(--text-h);
+	margin: 0 0 8px;
+}
+
+.protected-message p {
+	color: var(--text);
+	margin: 0 0 24px;
+}
+
+.protected-actions {
+	display: flex;
+	gap: 12px;
+	justify-content: center;
+}
+
+.btn-primary {
+	padding: 10px 24px;
+	background: var(--accent);
+	color: #fff;
+	border: none;
+	border-radius: 6px;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: opacity 0.2s;
+}
+
+.btn-primary:hover {
+	opacity: 0.9;
+}
+
+.btn-secondary {
+	padding: 10px 24px;
+	background: transparent;
+	color: var(--text-h);
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	font-size: 14px;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+	background: var(--code-bg);
+}

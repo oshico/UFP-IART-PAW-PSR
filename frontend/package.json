@@ -1,0 +1,33 @@
+{
+	"name": "frontend",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"lint": "biome check .",
+		"format": "biome format --write .",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"leaflet": "^1.9.4",
+		"react": "^19.2.5",
+		"react-dom": "^19.2.5",
+		"react-leaflet": "^5.0.0"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.29.0",
+		"@biomejs/biome": "^2.4.15",
+		"@rolldown/plugin-babel": "^0.2.3",
+		"@types/babel__core": "^7.20.5",
+		"@types/leaflet": "^1.9.21",
+		"@types/node": "^24.12.2",
+		"@types/react": "^19.2.14",
+		"@types/react-dom": "^19.2.3",
+		"@vitejs/plugin-react": "^6.0.1",
+		"babel-plugin-react-compiler": "^1.0.0",
+		"typescript": "~6.0.2",
+		"vite": "^8.0.10"
+	}
+}

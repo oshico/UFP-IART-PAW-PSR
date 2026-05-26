@@ -1,0 +1,61 @@
+name: Deploy to Homelab
+
+on:
+  pull_request:
+    branches: [main, development]
+  push:
+    branches: [main, development]
+  workflow_dispatch:
+
+jobs:
+  checks:
+    name: Code Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install, Lint and Format (Frontend)
+        continue-on-error: true
+        working-directory: ./frontend
+        run: |
+          bun install
+          bun run biome check
+
+      - name: Build (Frontend)
+        working-directory: ./frontend
+        run: bun run build
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Vet (Backend)
+        working-directory: ./Backend
+        run: go vet ./...
+
+      - name: Build (Backend)
+        working-directory: ./Backend
+        run: go build -o /dev/null ./cmd
+
+  deploy:
+    name: Deploy to Homelab
+    needs: checks
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+
+    steps:
+      - name: SSH Deploy
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            cd /home/oshico/UFP-IART-PAW-PSR
+            git pull origin main
+            docker compose up -d --build
