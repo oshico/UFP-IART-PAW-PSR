@@ -46,6 +46,7 @@ jobs:
     name: Deploy to Homelab
     needs: checks
     runs-on: ubuntu-latest
+    environment: Deploy
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
 
     steps:
