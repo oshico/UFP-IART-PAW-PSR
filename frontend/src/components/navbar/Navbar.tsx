@@ -15,6 +15,7 @@ const TABS: { key: TabType; label: string }[] = [
 	{ key: "accident", label: "Accidents" },
 	{ key: "rain", label: "Rainfall" },
 	{ key: "prediction", label: "Predictions" },
+	{ key: "dashboard", label: "Dashboard" },
 ];
 
 interface NavbarProps {
