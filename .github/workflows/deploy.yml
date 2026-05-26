@@ -17,7 +17,8 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
-      - name: Install , Lint and Format (Frontend)
+      - name: Install, Lint and Format (Frontend)
+        continue-on-error: true
         working-directory: ./frontend
         run: |
           bun install

@@ -3,7 +3,7 @@ import {
 	FilterBar,
 	type FilterValues,
 } from "../../components/filterBar/FilterBar";
-import { MapView, type MapMarker } from "../map/MapView";
+import { type MapMarker, MapView } from "../map/MapView";
 import { useFiresData } from "./hooks/useFiresData";
 
 export function FiresTab() {

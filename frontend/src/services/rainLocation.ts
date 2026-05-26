@@ -9,9 +9,10 @@ export interface RainLocation {
 	year: number;
 }
 
-export async function getRainLocations(
-	params?: { year?: string; city?: string },
-): Promise<ApiResponse<RainLocation[]>> {
+export async function getRainLocations(params?: {
+	year?: string;
+	city?: string;
+}): Promise<ApiResponse<RainLocation[]>> {
 	const qs = new URLSearchParams();
 	if (params?.year) qs.set("year", params.year);
 	if (params?.city) qs.set("city", params.city);
