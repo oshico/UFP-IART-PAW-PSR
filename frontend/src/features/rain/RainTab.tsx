@@ -3,7 +3,7 @@ import {
 	FilterBar,
 	type FilterValues,
 } from "../../components/filterBar/FilterBar";
-import { MapView, type MapMarker } from "../map/MapView";
+import { type MapMarker, MapView } from "../map/MapView";
 import { useRainData } from "./hooks/useRainData";
 
 const DEFAULT_FILTERS: FilterValues = {
@@ -28,10 +28,7 @@ export function RainTab() {
 
 	return (
 		<div className="tab-content">
-			<FilterBar
-				onFilterChange={setFilters}
-				defaultValues={DEFAULT_FILTERS}
-			/>
+			<FilterBar onFilterChange={setFilters} defaultValues={DEFAULT_FILTERS} />
 			{error && <div className="error-banner">{error}</div>}
 			<MapView isLoading={isLoading} markers={markers} />
 		</div>
