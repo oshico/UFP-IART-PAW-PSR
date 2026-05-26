@@ -11,6 +11,8 @@ jobs:
   checks:
     name: Code Checks
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
     steps:
       - uses: actions/checkout@v4
 
@@ -51,10 +53,10 @@ jobs:
       - name: SSH Deploy
         uses: appleboy/ssh-action@v1.2.2
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT || 22 }}
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT || 22 }}
           script: |
             cd /home/oshico/UFP-IART-PAW-PSR
             git pull origin main
