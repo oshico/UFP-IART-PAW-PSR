@@ -59,7 +59,7 @@ jobs:
           port: ${{ secrets.PORT || 22 }}
           script: |
             eval $(ssh-agent)
-            ssh-add - <<< "${{ secrets.SSH_GIT_KEY }}"
+            ssh-add ~/.ssh/github
             cd /home/oshico/UFP-IART-PAW-PSR
             git pull origin main
             docker compose up -d --build
