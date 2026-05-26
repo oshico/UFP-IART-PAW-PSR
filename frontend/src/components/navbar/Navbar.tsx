@@ -6,7 +6,7 @@ import type { EventType } from "../../types/events.ts";
 import { APP_NAME } from "../../utils/constants.ts";
 import "./styles/Navbar.css";
 
-type TabType = EventType | "prediction" | "rain";
+type TabType = EventType | "prediction" | "rain" | "dashboard";
 
 const TABS: { key: TabType; label: string }[] = [
 	{ key: "fire", label: "Fires" },
