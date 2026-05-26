@@ -1,4 +1,4 @@
-import { divIcon } from "leaflet";
+import * as L from "leaflet";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import { LoadingSpinner } from "../../components/loadingSpinner/LoadingSpinner.tsx";
 import { DEFAULT_ZOOM, PORTUGAL_CENTER } from "../../utils/constants";
@@ -19,7 +19,7 @@ interface MapViewProps {
 }
 
 function createIcon(type?: string) {
-	return divIcon({
+	return L.divIcon({
 		className: "",
 		html:
 			type === "rain"
