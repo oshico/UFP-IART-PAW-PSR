@@ -1,5 +1,4 @@
-import { divIcon } from "leaflet";
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { CircleMarker, MapContainer, Popup, TileLayer } from "react-leaflet";
 import { LoadingSpinner } from "../../components/loadingSpinner/LoadingSpinner.tsx";
 import { DEFAULT_ZOOM, PORTUGAL_CENTER } from "../../utils/constants";
 import "./MapView.css";
@@ -18,18 +17,10 @@ interface MapViewProps {
 	markers?: MapMarker[];
 }
 
-function createIcon(type?: string) {
-	return divIcon({
-		className: "",
-		html:
-			type === "rain"
-				? '<div class="marker-circle marker-rain">🌧️</div>'
-				: '<div class="marker-circle marker-fire">🔥</div>',
-		iconSize: [32, 32],
-		iconAnchor: [16, 16],
-		popupAnchor: [0, -20],
-	});
-}
+const MARKER_STYLES = {
+	fire: { color: "#ef4444", fillColor: "#ef4444" },
+	rain: { color: "#3b82f6", fillColor: "#3b82f6" },
+} as const;
 
 export function MapView({
 	isLoading = false,
@@ -52,17 +43,23 @@ export function MapView({
 				/>
 
 				{markers.map((m, i) => (
-					<Marker
+					<CircleMarker
 						key={i}
-						position={[m.lat, m.lng]}
-						icon={createIcon(m.type)}
+						center={[m.lat, m.lng]}
+						radius={8}
+						pathOptions={{
+							...MARKER_STYLES[m.type ?? "fire"],
+							fillOpacity: 0.9,
+							weight: 2,
+							opacity: 1,
+						}}
 					>
 						<Popup>
 							<strong>{m.title}</strong>
 							{m.description && <br />}
 							{m.description}
 						</Popup>
-					</Marker>
+					</CircleMarker>
 				))}
 			</MapContainer>
 		</div>

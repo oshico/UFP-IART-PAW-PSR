@@ -1,20 +1,8 @@
-.marker-circle {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 32px;
-	height: 32px;
-	border-radius: 50%;
-	font-size: 16px;
-	border: 2px solid #fff;
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-	cursor: pointer;
+.map-container {
+	position: relative;
 }
 
-.marker-fire {
-	background: #ef4444;
-}
-
-.marker-rain {
-	background: #3b82f6;
+.map-container .leaflet-container {
+	height: 100%;
+	width: 100%;
 }
