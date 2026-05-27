@@ -5,6 +5,8 @@
 # Backend
 
 backend/.idea/*
+backend/tmp/
+backend/cmd/tmp/
 
 # Frontend
 

@@ -1,10 +1,10 @@
-FROM astral/uv:debian AS builder
+FROM astral/uv:alpine-dhi AS builder
 
 WORKDIR /predictionEngine
 COPY pyproject.toml .
 RUN uv sync --no-dev
 
-FROM astral/uv:debian
+FROM astral/uv:alpine-dhi
 WORKDIR /predictionEngine
 COPY --from=builder /predictionEngine/.venv .venv
 COPY app/ app/
