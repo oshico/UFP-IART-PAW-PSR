@@ -1,5 +1,6 @@
 FROM astral/uv:alpine-dhi AS builder
 USER 0
+RUN apk add --no-cache build-base musl-dev linux-headers
 WORKDIR /predictionEngine
 ENV UV_CACHE_DIR=/tmp/uv-cache
 COPY pyproject.toml .
