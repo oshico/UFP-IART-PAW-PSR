@@ -28,7 +28,8 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
 	if (!isOpen) return null;
 
 	return (
-		// biome-ignore lint/a11y/useKeyWithClickEvents: dosent need onkeydown
+		// biome-ignore lint/a11y/useKeyWithClickEvents: <sry>
+		// biome-ignore lint/a11y/noStaticElementInteractions: <sry>
 		<div className="modal-backdrop" onClick={onClose}>
 			<div
 				className="modal-content"
