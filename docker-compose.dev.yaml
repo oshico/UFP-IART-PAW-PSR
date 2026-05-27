@@ -40,7 +40,7 @@ services:
       - MINIO_ENDPOINT=minio_bucket:9000
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin
-      - MINIO_BUCKET=ml-artifacts
+      - MINIO_BUCKET=pe-artifacts
     ports:
       - "8000:8000"
 
@@ -48,6 +48,7 @@ services:
     build:
       args:
         - VITE_API_URL=http://localhost:8080/api/v1
+        - VITE_PE_API_URL=http://localhost:8000
     ports:
       - "4173:4173"
 
