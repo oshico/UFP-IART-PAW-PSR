@@ -10,7 +10,7 @@ services:
     networks:
       - proxy
 
-  minio_bucket:
+  minio:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
     environment:
@@ -50,7 +50,7 @@ services:
       - CORS_ALLOWED_ORIGINS=https://terrawatch.${DOMAIN}
     depends_on:
       - postgis_db
-      - minio_bucket
+      - minio
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`terrawatch-api.${DOMAIN}`)"
@@ -70,14 +70,14 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - DB_PORT=${DB_PORT}
-      - MINIO_ENDPOINT=minio_bucket:9000
+      - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
       - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
       - MINIO_BUCKET=${PE_BUCKET_NAME}
       - CORS_ALLOWED_ORIGINS=https://terrawatch.${DOMAIN}
     depends_on:
       - postgis_db
-      - minio_bucket
+      - minio
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.pe.rule=Host(`terrawatch-pe.${DOMAIN}`)"
@@ -96,7 +96,7 @@ services:
         - VITE_PE_API_URL=${VITE_PE_API_URL}
     depends_on:
       - postgis_db
-      - minio_bucket
+      - minio
       - go_backend
       - prediction_engine
     labels:
