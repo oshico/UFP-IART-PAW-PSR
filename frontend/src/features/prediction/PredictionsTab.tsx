@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { trainFires, trainRains } from "../../services/predictions";
 import { DISTRICTS } from "../../utils/constants";
 import { useAuth } from "../auth/hooks/useAuth";
@@ -28,6 +28,7 @@ export function PredictionsTab() {
 	const [months, setMonths] = useState(12);
 	const [years, setYears] = useState(5);
 	const [trainingStatus, setTrainingStatus] = useState<string | null>(null);
+	const [filterYear, setFilterYear] = useState("");
 
 	const fire = useFirePredictions();
 	const rain = useRainPredictions();
@@ -35,6 +36,22 @@ export function PredictionsTab() {
 	const isLoading = fire.isLoading || rain.isLoading;
 	const error = fire.error || rain.error;
 	const meta = predictionType === "fire" ? fire.meta : rain.meta;
+
+	const allPredictions =
+		predictionType === "fire" ? fire.predictions : rain.predictions;
+
+	const availableYears = useMemo(() => {
+		const years = new Set(allPredictions.map((p) => p.date.slice(0, 4)));
+		return [...years].sort().reverse();
+	}, [allPredictions]);
+
+	const predictions = useMemo(
+		() =>
+			allPredictions.filter(
+				(p) => !filterYear || p.date.startsWith(filterYear),
+			),
+		[allPredictions, filterYear],
+	);
 
 	const handlePredict = () => {
 		if (predictionType === "fire") {
@@ -69,9 +86,6 @@ export function PredictionsTab() {
 		}
 		setTimeout(() => setTrainingStatus(null), 5000);
 	};
-
-	const predictions =
-		predictionType === "fire" ? fire.predictions : rain.predictions;
 
 	const markers: MapMarker[] = predictions.map((p) => {
 		if (predictionType === "fire") {
@@ -165,6 +179,20 @@ export function PredictionsTab() {
 						</label>
 					)}
 
+					{availableYears.length > 0 && (
+						<select
+							value={filterYear}
+							onChange={(e) => setFilterYear(e.target.value)}
+						>
+							<option value="">All Years</option>
+							{availableYears.map((y) => (
+								<option key={y} value={y}>
+									{y}
+								</option>
+							))}
+						</select>
+					)}
+
 					<button type="button" onClick={handlePredict}>
 						Get Predictions
 					</button>
@@ -198,7 +226,9 @@ export function PredictionsTab() {
 			)}
 
 			{(predictions.length > 0 || isLoading) && (
-				<MapView isLoading={isLoading} markers={markers} height="500px" />
+				<div className="prediction-map-wrapper">
+					<MapView isLoading={isLoading} markers={markers} height="500px" />
+				</div>
 			)}
 
 			{predictions.length > 0 && (
