@@ -1,13 +1,11 @@
 FROM astral/uv:alpine-dhi AS builder
 USER 0
-RUN mkdir -p /predictionEngine && chown 1000:1000 /predictionEngine
-USER 1000
 WORKDIR /predictionEngine
-ENV UV_CACHE_DIR=/tmp/uv-cache
 COPY pyproject.toml .
 RUN uv sync --no-dev
 
 FROM astral/uv:alpine-dhi
+USER 0
 WORKDIR /predictionEngine
 COPY --from=builder /predictionEngine/.venv .venv
 COPY app/ app/
