@@ -54,7 +54,7 @@ def save_predictions(rows: list[dict]):
              confidence_lower, confidence_upper, model_name, model_version, metadata)
         VALUES
             (:type, :region, :lat, :long, :predicted_date, :value,
-             :confidence_lower, :confidence_upper, :model_name, :model_version, :metadata::jsonb)
+             :confidence_lower, :confidence_upper, :model_name, :model_version, CAST(:metadata AS jsonb))
     """
     with engine.begin() as conn:
         conn.execute(text(insert_sql), rows)
