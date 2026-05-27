@@ -3,6 +3,7 @@ USER 0
 RUN mkdir -p /predictionEngine && chown 1000:1000 /predictionEngine
 USER 1000
 WORKDIR /predictionEngine
+ENV UV_CACHE_DIR=/tmp/uv-cache
 COPY pyproject.toml .
 RUN uv sync --no-dev
 
