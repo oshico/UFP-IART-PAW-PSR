@@ -1,4 +1,5 @@
 import os
+from urllib.parse import quote_plus
 
 REQUIRED = [
     "DB_HOST",
@@ -25,7 +26,7 @@ DB_PASSWORD = os.environ["DB_PASSWORD"]
 DB_NAME = os.environ["DB_NAME"]
 
 DATABASE_URL = (
-    f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    f"postgresql://{DB_USER}:{quote_plus(DB_PASSWORD)}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 )
 
 MINIO_ENDPOINT = os.environ["MINIO_ENDPOINT"]
