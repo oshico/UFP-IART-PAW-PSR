@@ -1,6 +1,7 @@
 FROM astral/uv:alpine-dhi AS builder
 USER 0
 WORKDIR /predictionEngine
+ENV UV_CACHE_DIR=/tmp/uv-cache
 COPY pyproject.toml .
 RUN uv sync --no-dev
 
