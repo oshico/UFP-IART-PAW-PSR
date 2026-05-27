@@ -1,5 +1,7 @@
 FROM astral/uv:alpine-dhi AS builder
-
+USER root
+RUN mkdir -p /predictionEngine && chown uv:uv /predictionEngine
+USER uv
 WORKDIR /predictionEngine
 COPY pyproject.toml .
 RUN uv sync --no-dev
