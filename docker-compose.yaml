@@ -74,6 +74,7 @@ services:
       - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
       - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
       - MINIO_BUCKET=${PE_BUCKET_NAME}
+      - CORS_ALLOWED_ORIGINS=https://terrawatch.${DOMAIN}
     depends_on:
       - postgis_db
       - minio_bucket
