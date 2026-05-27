@@ -34,12 +34,19 @@ jobs:
           go-version: '1.25'
 
       - name: Vet (Backend)
-        working-directory: ./Backend
+        working-directory: ./backend
         run: go vet ./...
 
       - name: Build (Backend)
-        working-directory: ./Backend
+        working-directory: ./backend
         run: go build -o /dev/null ./cmd
+
+      - name: Setup Python/uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Check (Prediction Engine)
+        working-directory: ./predictionEngine
+        run: uv sync --no-dev
 
   deploy:
     name: Deploy to Homelab
