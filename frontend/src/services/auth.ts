@@ -1,3 +1,4 @@
+import type { ApiResponse } from "../types/api";
 import type {
 	AuthResponse,
 	AuthTokens,
@@ -5,7 +6,6 @@ import type {
 	RegisterCredentials,
 	User,
 } from "../types/auth";
-import type { ApiResponse } from "../types/api";
 import { apiGet, apiPost } from "./api";
 
 interface BackendAuthResponse {
@@ -51,12 +51,13 @@ function getRefreshToken(): string | null {
 export async function login(
 	credentials: LoginCredentials,
 ): Promise<ApiResponse<AuthResponse>> {
-	const result = await apiPost<BackendAuthResponse>(
-		"/auth/login",
-		credentials,
-	);
+	const result = await apiPost<BackendAuthResponse>("/auth/login", credentials);
 	if (!result.success) {
-		return { success: false, data: null as unknown as AuthResponse, error: result.error };
+		return {
+			success: false,
+			data: null as unknown as AuthResponse,
+			error: result.error,
+		};
 	}
 
 	const tokens = tokensFromBackend(result.data);
@@ -68,7 +69,11 @@ export async function login(
 	});
 	if (!userResult.success) {
 		localStorage.removeItem("auth_tokens");
-		return { success: false, data: null as unknown as AuthResponse, error: userResult.error };
+		return {
+			success: false,
+			data: null as unknown as AuthResponse,
+			error: userResult.error,
+		};
 	}
 
 	const user = userFromBackend(userResult.data);
@@ -83,7 +88,11 @@ export async function register(
 		credentials,
 	);
 	if (!result.success) {
-		return { success: false, data: null as unknown as AuthResponse, error: result.error };
+		return {
+			success: false,
+			data: null as unknown as AuthResponse,
+			error: result.error,
+		};
 	}
 
 	const tokens = tokensFromBackend(result.data);
@@ -95,7 +104,11 @@ export async function register(
 	});
 	if (!userResult.success) {
 		localStorage.removeItem("auth_tokens");
-		return { success: false, data: null as unknown as AuthResponse, error: userResult.error };
+		return {
+			success: false,
+			data: null as unknown as AuthResponse,
+			error: userResult.error,
+		};
 	}
 
 	const user = userFromBackend(userResult.data);
@@ -114,7 +127,11 @@ export async function getCurrentUser(): Promise<ApiResponse<User>> {
 		requiresAuth: true,
 	});
 	if (!result.success) {
-		return { success: false, data: null as unknown as User, error: result.error };
+		return {
+			success: false,
+			data: null as unknown as User,
+			error: result.error,
+		};
 	}
 	return { success: true, data: userFromBackend(result.data) };
 }
@@ -125,7 +142,11 @@ export async function refreshToken(): Promise<ApiResponse<AuthResponse>> {
 		refresh_token: refreshToken,
 	});
 	if (!result.success) {
-		return { success: false, data: null as unknown as AuthResponse, error: result.error };
+		return {
+			success: false,
+			data: null as unknown as AuthResponse,
+			error: result.error,
+		};
 	}
 
 	const tokens = tokensFromBackend(result.data);
@@ -137,7 +158,11 @@ export async function refreshToken(): Promise<ApiResponse<AuthResponse>> {
 	});
 	if (!userResult.success) {
 		localStorage.removeItem("auth_tokens");
-		return { success: false, data: null as unknown as AuthResponse, error: userResult.error };
+		return {
+			success: false,
+			data: null as unknown as AuthResponse,
+			error: userResult.error,
+		};
 	}
 
 	const user = userFromBackend(userResult.data);

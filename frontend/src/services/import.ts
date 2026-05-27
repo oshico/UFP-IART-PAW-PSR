@@ -15,11 +15,25 @@ export async function uploadFiresFile(
 ): Promise<ApiResponse<{ task_id: string }>> {
 	const formData = new FormData();
 	formData.append("file", file);
-	return apiUpload<{ task_id: string }>("/import/fires", formData);
+	return apiUpload<{ task_id: string }>("/import/fires", formData, {
+		requiresAuth: true,
+	});
+}
+
+export async function uploadRainsFile(
+	file: File,
+): Promise<ApiResponse<{ task_id: string }>> {
+	const formData = new FormData();
+	formData.append("file", file);
+	return apiUpload<{ task_id: string }>("/import/rains", formData, {
+		requiresAuth: true,
+	});
 }
 
 export async function getImportStatus(
 	taskId: string,
 ): Promise<ApiResponse<ImportTask>> {
-	return apiGet<ImportTask>(`/import/status/${taskId}`);
+	return apiGet<ImportTask>(`/import/status/${taskId}`, {
+		requiresAuth: true,
+	});
 }

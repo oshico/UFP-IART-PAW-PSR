@@ -9,9 +9,11 @@ export interface FireLocation {
 	hour: number;
 }
 
-export async function getFireLocations(
-	params?: { startDate?: string; endDate?: string; local?: string },
-): Promise<ApiResponse<FireLocation[]>> {
+export async function getFireLocations(params?: {
+	startDate?: string;
+	endDate?: string;
+	local?: string;
+}): Promise<ApiResponse<FireLocation[]>> {
 	const qs = new URLSearchParams();
 	if (params?.startDate) qs.set("startDate", params.startDate);
 	if (params?.endDate) qs.set("endDate", params.endDate);

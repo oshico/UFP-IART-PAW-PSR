@@ -12,9 +12,11 @@ func SetupRoutes(r *gin.Engine) {
 	{
 
 		Import := api.Group("/import")
+		Import.Use(middleware.AuthRequired())
 		{
 			Import.POST("/fires", handlers.ImportFire)
 			Import.POST("/rains", handlers.ImportRain)
+			Import.GET("/status/:taskID", handlers.GetImportStatus)
 		}
 
 		locations := api.Group("/locations")
@@ -25,7 +27,6 @@ func SetupRoutes(r *gin.Engine) {
 
 		stats := api.Group("/stats")
 		{
-			stats.GET("/status/:taskID", handlers.GetImportStatus)
 			stats.GET("/fires/by-district", handlers.GetFiresByDistrict)
 			stats.GET("/fires/by-year", handlers.GetFiresByYear)
 			stats.GET("/fires/by-cause-group", handlers.GetFiresByCauseGroup)
