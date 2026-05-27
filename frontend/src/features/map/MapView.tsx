@@ -42,9 +42,9 @@ export function MapView({
 					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 				/>
 
-				{markers.map((m, i) => (
+				{markers.map((m) => (
 					<CircleMarker
-						key={i}
+						key={`${m.lat}-${m.lng}`}
 						center={[m.lat, m.lng]}
 						radius={8}
 						pathOptions={{
