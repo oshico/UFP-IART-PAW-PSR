@@ -1,7 +1,6 @@
 FROM golang:latest AS builder
 
-WORKDIR /Backend
-
+WORKDIR /app
 
 COPY go.mod go.sum ./
 
@@ -13,9 +12,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o server ./cmd
 
 FROM alpine:latest
 
-WORKDIR /Backend
+WORKDIR /app
 
-COPY --from=builder /Backend/server .
+COPY --from=builder /app/server .
 
 EXPOSE 8080
 

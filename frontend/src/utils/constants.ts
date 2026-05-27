@@ -3,8 +3,8 @@ export const APP_NAME = "TerraWatch";
 export const API_BASE_URL =
 	import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1";
 
-export const ML_API_BASE_URL =
-	import.meta.env.VITE_ML_API_URL || "http://localhost:8000";
+export const PE_API_BASE_URL =
+	import.meta.env.VITE_PE_API_URL || "http://localhost:8000";
 
 export const PORTUGAL_BOUNDS = {
 	north: 42.15,

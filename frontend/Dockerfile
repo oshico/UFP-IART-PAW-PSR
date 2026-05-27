@@ -5,6 +5,9 @@ WORKDIR /frontend
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
+ARG VITE_PE_API_URL
+ENV VITE_PE_API_URL=$VITE_PE_API_URL
+
 COPY package.json bun.lock ./
 RUN bun install
 
