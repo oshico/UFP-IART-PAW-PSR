@@ -1,13 +1,270 @@
+import { useState } from "react";
+import { trainFires, trainRains } from "../../services/predictions";
+import { DISTRICTS } from "../../utils/constants";
+import { useAuth } from "../auth/hooks/useAuth";
+import { type MapMarker, MapView } from "../map/MapView";
+import { useFirePredictions, useRainPredictions } from "./hooks/usePredictions";
+
+const CITIES = [
+	"Viana do Castelo",
+	"Bragança",
+	"Porto",
+	"Castelo Branco",
+	"Lisboa",
+	"Beja",
+	"Faro",
+	"Funchal",
+	"Angra do Heroísmo",
+];
+
+type PredictionType = "fire" | "rain";
+
 export function PredictionsTab() {
+	const { isAuthenticated } = useAuth();
+	const [predictionType, setPredictionType] = useState<PredictionType>("fire");
+	const [selectedDistrict, setSelectedDistrict] = useState("");
+	const [selectedCity, setSelectedCity] = useState("");
+	const [months, setMonths] = useState(12);
+	const [years, setYears] = useState(5);
+	const [trainingStatus, setTrainingStatus] = useState<string | null>(null);
+
+	const fire = useFirePredictions();
+	const rain = useRainPredictions();
+
+	const isLoading = fire.isLoading || rain.isLoading;
+	const error = fire.error || rain.error;
+	const meta = predictionType === "fire" ? fire.meta : rain.meta;
+
+	const handlePredict = () => {
+		if (predictionType === "fire") {
+			fire.fetch({
+				district: selectedDistrict || undefined,
+				months,
+			});
+		} else {
+			rain.fetch({
+				city: selectedCity || undefined,
+				years,
+			});
+		}
+	};
+
+	const handleTrain = async () => {
+		setTrainingStatus("Training...");
+		try {
+			if (predictionType === "fire") {
+				const res = await trainFires();
+				setTrainingStatus(
+					`Trained ${res.regions_trained.length} districts (v${res.model_version})`,
+				);
+			} else {
+				const res = await trainRains();
+				setTrainingStatus(
+					`Trained ${res.regions_trained.length} cities (v${res.model_version})`,
+				);
+			}
+		} catch (e) {
+			setTrainingStatus(e instanceof Error ? e.message : "Training failed");
+		}
+		setTimeout(() => setTrainingStatus(null), 5000);
+	};
+
+	const predictions =
+		predictionType === "fire" ? fire.predictions : rain.predictions;
+
+	const markers: MapMarker[] = predictions.map((p) => {
+		if (predictionType === "fire") {
+			const fp = p as (typeof fire.predictions)[number];
+			return {
+				lat: fp.lat ?? 39.5,
+				lng: fp.long ?? -8.0,
+				title: fp.district,
+				description: `${fp.predicted_count} fires predicted (${fp.confidence_lower}–${fp.confidence_upper}) on ${fp.date}`,
+				type: "fire" as const,
+			};
+		}
+		const rp = p as (typeof rain.predictions)[number];
+		return {
+			lat: rp.lat ?? 39.5,
+			lng: rp.long ?? -8.0,
+			title: rp.city,
+			description: `${rp.predicted_precipitation_mm} mm predicted (${rp.confidence_lower}–${rp.confidence_upper}) for ${rp.date}`,
+			type: "rain" as const,
+		};
+	});
+
 	return (
 		<div className="tab-content tab-predictions">
-			<div className="predictions-placeholder">
-				<h3>Predictions</h3>
-				<p>LLM-powered event prediction will appear here.</p>
-				<p className="placeholder-note">
-					Configure parameters and submit a prediction request to see results.
-				</p>
+			<div className="prediction-controls">
+				<div className="prediction-type-switcher">
+					<button
+						type="button"
+						className={predictionType === "fire" ? "active" : ""}
+						onClick={() => setPredictionType("fire")}
+					>
+						Fire Predictions
+					</button>
+					<button
+						type="button"
+						className={predictionType === "rain" ? "active" : ""}
+						onClick={() => setPredictionType("rain")}
+					>
+						Rain Predictions
+					</button>
+				</div>
+
+				<div className="prediction-filters">
+					{predictionType === "fire" ? (
+						<select
+							value={selectedDistrict}
+							onChange={(e) => setSelectedDistrict(e.target.value)}
+						>
+							<option value="">All Districts</option>
+							{DISTRICTS.map((d) => (
+								<option key={d} value={d}>
+									{d}
+								</option>
+							))}
+						</select>
+					) : (
+						<select
+							value={selectedCity}
+							onChange={(e) => setSelectedCity(e.target.value)}
+						>
+							<option value="">All Cities</option>
+							{CITIES.map((c) => (
+								<option key={c} value={c}>
+									{c}
+								</option>
+							))}
+						</select>
+					)}
+
+					{predictionType === "fire" ? (
+						<label>
+							Months: {months}
+							<input
+								type="range"
+								min={1}
+								max={60}
+								value={months}
+								onChange={(e) => setMonths(Number(e.target.value))}
+							/>
+						</label>
+					) : (
+						<label>
+							Years: {years}
+							<input
+								type="range"
+								min={1}
+								max={20}
+								value={years}
+								onChange={(e) => setYears(Number(e.target.value))}
+							/>
+						</label>
+					)}
+
+					<button type="button" onClick={handlePredict}>
+						Get Predictions
+					</button>
+
+					{isAuthenticated && (
+						<button type="button" className="btn-train" onClick={handleTrain}>
+							Train Models
+						</button>
+					)}
+				</div>
+
+				{trainingStatus && (
+					<div className="training-status">{trainingStatus}</div>
+				)}
+
+				{meta && (
+					<div className="prediction-meta">
+						Model: {meta.model_name} (v{meta.model_version}) — Generated:{" "}
+						{new Date(meta.generated_at).toLocaleString()}
+					</div>
+				)}
 			</div>
+
+			{error && <div className="error-banner">{error}</div>}
+
+			{!predictions.length && !isLoading && !error && (
+				<div className="predictions-placeholder">
+					<h3>Predictions</h3>
+					<p>Select parameters and click "Get Predictions" to see results.</p>
+				</div>
+			)}
+
+			{(predictions.length > 0 || isLoading) && (
+				<MapView isLoading={isLoading} markers={markers} height="500px" />
+			)}
+
+			{predictions.length > 0 && (
+				<div className="predictions-table-container">
+					<table className="predictions-table">
+						<thead>
+							<tr>
+								<th>{predictionType === "fire" ? "District" : "City"}</th>
+								<th>Date</th>
+								<th>Predicted Value</th>
+								<th>Confidence Interval</th>
+							</tr>
+						</thead>
+						<tbody>
+							{predictions.map((p) => (
+								<tr
+									key={`${predictionType}-${p.date}-${predictionType === "fire" ? (p as (typeof fire.predictions)[number]).district : (p as (typeof rain.predictions)[number]).city}`}
+								>
+									{predictionType === "fire" ? (
+										<>
+											<td>
+												{(p as (typeof fire.predictions)[number]).district}
+											</td>
+											<td>{p.date}</td>
+											<td>
+												{(
+													p as (typeof fire.predictions)[number]
+												).predicted_count.toFixed(1)}{" "}
+												fires
+											</td>
+											<td>
+												{(
+													p as (typeof fire.predictions)[number]
+												).confidence_lower.toFixed(1)}{" "}
+												–{" "}
+												{(
+													p as (typeof fire.predictions)[number]
+												).confidence_upper.toFixed(1)}
+											</td>
+										</>
+									) : (
+										<>
+											<td>{(p as (typeof rain.predictions)[number]).city}</td>
+											<td>{p.date}</td>
+											<td>
+												{(
+													p as (typeof rain.predictions)[number]
+												).predicted_precipitation_mm.toFixed(1)}{" "}
+												mm
+											</td>
+											<td>
+												{(
+													p as (typeof rain.predictions)[number]
+												).confidence_lower.toFixed(1)}{" "}
+												–{" "}
+												{(
+													p as (typeof rain.predictions)[number]
+												).confidence_upper.toFixed(1)}
+											</td>
+										</>
+									)}
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+			)}
 		</div>
 	);
 }

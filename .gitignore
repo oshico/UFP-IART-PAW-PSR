@@ -4,7 +4,7 @@
 
 # Backend
 
-Backend/.idea/*
+backend/.idea/*
 
 # Frontend
 
@@ -34,5 +34,14 @@ frontend/*.sw?
 # Secrets
 
 .env
-Backend/.env
+backend/.env
 fronted/.env
+predictionEngine/.env
+
+# Prediction Engine
+
+predictionEngine/data/
+predictionEngine/models/
+predictionEngine/.venv/
+predictionEngine/__pycache__/
+predictionEngine/**/__pycache__/

@@ -30,6 +30,20 @@ services:
     ports:
       - "8080:8080"
 
+  prediction_engine:
+    environment:
+      - DB_HOST=postgis_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=terrawatch
+      - DB_PORT=5432
+      - MINIO_ENDPOINT=minio_bucket:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET=ml-artifacts
+    ports:
+      - "8000:8000"
+
   react_frontend:
     build:
       args:
