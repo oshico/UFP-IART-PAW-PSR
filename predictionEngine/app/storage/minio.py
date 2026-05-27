@@ -25,6 +25,7 @@ def _get_client() -> Minio:
             access_key=MINIO_ACCESS_KEY,
             secret_key=MINIO_SECRET_KEY,
             secure=MINIO_SECURE,
+            region="us-east-1",
         )
     return _client
 
