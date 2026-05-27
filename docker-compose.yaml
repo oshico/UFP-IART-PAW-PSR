@@ -36,7 +36,7 @@ services:
 
   go_backend:
     build:
-      context: ./Backend
+      context: ./backend
       dockerfile: Dockerfile
     environment:
       - DB_HOST=${DB_HOST}
@@ -60,6 +60,32 @@ services:
     networks:
       - proxy
 
+  prediction_engine:
+    build:
+      context: ./predictionEngine
+      dockerfile: Dockerfile
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+      - MINIO_ENDPOINT=minio_bucket:9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
+      - MINIO_BUCKET=${ML_BUCKET_NAME}
+    depends_on:
+      - postgis_db
+      - minio_bucket
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ml.rule=Host(`terrawatch-ml.${DOMAIN}`)"
+      - "traefik.http.routers.ml.entrypoints=websecure"
+      - "traefik.http.routers.ml.tls.certresolver=cloudflare"
+      - "traefik.http.services.ml.loadbalancer.server.port=8000"
+    networks:
+      - proxy
+
   react_frontend:
     build:
       context: ./frontend
@@ -70,6 +96,7 @@ services:
       - postgis_db
       - minio_bucket
       - go_backend
+      - prediction_engine
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`terrawatch.${DOMAIN}`)"
