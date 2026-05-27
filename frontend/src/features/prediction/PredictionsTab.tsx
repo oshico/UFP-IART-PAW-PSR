@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { trainFires, trainRains } from "../../services/predictions";
 import { DISTRICTS } from "../../utils/constants";
 import { useAuth } from "../auth/hooks/useAuth";
@@ -29,6 +29,7 @@ export function PredictionsTab() {
 	const [years, setYears] = useState(5);
 	const [trainingStatus, setTrainingStatus] = useState<string | null>(null);
 	const [filterYear, setFilterYear] = useState("");
+	const [filterMonth, setFilterMonth] = useState("");
 
 	const fire = useFirePredictions();
 	const rain = useRainPredictions();
@@ -45,13 +46,28 @@ export function PredictionsTab() {
 		return [...years].sort().reverse();
 	}, [allPredictions]);
 
-	const predictions = useMemo(
-		() =>
-			allPredictions.filter(
-				(p) => !filterYear || p.date.startsWith(filterYear),
-			),
-		[allPredictions, filterYear],
-	);
+	const availableMonths = useMemo(() => {
+		if (!filterYear) return [];
+		const months = new Set(
+			allPredictions
+				.filter((p) => p.date.startsWith(filterYear))
+				.map((p) => p.date.slice(5, 7)),
+		);
+		return [...months]
+			.map((m) => ({ value: m, label: new Date(0, Number(m) - 1).toLocaleString("default", { month: "long" }) }))
+			.sort((a, b) => Number(a.value) - Number(b.value));
+	}, [allPredictions, filterYear]);
+
+	const predictions = useMemo(() => {
+		let filtered = allPredictions;
+		if (filterYear) filtered = filtered.filter((p) => p.date.startsWith(filterYear));
+		if (filterMonth && predictionType === "fire") filtered = filtered.filter((p) => p.date.slice(5, 7) === filterMonth);
+		return filtered;
+	}, [allPredictions, filterYear, filterMonth, predictionType]);
+
+	useEffect(() => {
+		if (predictionType !== "fire") setFilterMonth("");
+	}, [predictionType]);
 
 	const handlePredict = () => {
 		if (predictionType === "fire") {
@@ -182,12 +198,29 @@ export function PredictionsTab() {
 					{availableYears.length > 0 && (
 						<select
 							value={filterYear}
-							onChange={(e) => setFilterYear(e.target.value)}
+							onChange={(e) => {
+								setFilterYear(e.target.value);
+								setFilterMonth("");
+							}}
 						>
 							<option value="">All Years</option>
 							{availableYears.map((y) => (
 								<option key={y} value={y}>
 									{y}
+								</option>
+							))}
+						</select>
+					)}
+
+					{predictionType === "fire" && filterYear && availableMonths.length > 0 && (
+						<select
+							value={filterMonth}
+							onChange={(e) => setFilterMonth(e.target.value)}
+						>
+							<option value="">All Months</option>
+							{availableMonths.map((m) => (
+								<option key={m.value} value={m.value}>
+									{m.label}
 								</option>
 							))}
 						</select>
