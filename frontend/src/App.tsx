@@ -27,7 +27,11 @@ function App() {
 					{activeTab === "rescue" && <RescuesTab />}
 					{activeTab === "accident" && <AccidentsTab />}
 					{activeTab === "rain" && <RainTab />}
-					{activeTab === "dashboard" && <DashboardTab />}
+					{activeTab === "dashboard" && (
+						<ProtectedRoute featureName="the dashboard">
+							<DashboardTab />
+						</ProtectedRoute>
+					)}
 					{activeTab === "prediction" && (
 						<ProtectedRoute>
 							<PredictionsTab />

@@ -9,7 +9,10 @@ interface ProtectedRouteProps {
 	children: ReactNode;
 }
 
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
+export function ProtectedRoute({
+	children,
+	featureName = "this feature",
+}: ProtectedRouteProps & { featureName?: string }) {
 	const { isAuthenticated } = useAuth();
 	const [modalType, setModalType] = useState<AuthModalType>(null);
 
@@ -21,7 +24,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 		<div className="protected-route">
 			<div className="protected-message">
 				<h3>Authentication Required</h3>
-				<p>You need to login to access the predictions feature.</p>
+				<p>You need to login to access {featureName}.</p>
 				<div className="protected-actions">
 					<button
 						type="button"

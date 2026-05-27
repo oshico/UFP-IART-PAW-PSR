@@ -45,7 +45,9 @@ export async function apiFetch<T>(
 			success: false,
 			data: null as unknown as T,
 			error:
-				errorData?.error || errorData?.message || `HTTP ${response.status}: ${response.statusText}`,
+				errorData?.error ||
+				errorData?.message ||
+				`HTTP ${response.status}: ${response.statusText}`,
 		};
 	}
 
