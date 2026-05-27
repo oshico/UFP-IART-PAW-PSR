@@ -1,13 +1,11 @@
-FROM astral/uv:alpine-dhi AS builder
-USER 0
-RUN apk add --no-cache build-base musl-dev linux-headers
+FROM python:3.12-slim-bookworm AS builder
+RUN pip install uv --quiet
 WORKDIR /predictionEngine
-ENV UV_CACHE_DIR=/tmp/uv-cache
 COPY pyproject.toml .
 RUN uv sync --no-dev
 
-FROM astral/uv:alpine-dhi
-USER 0
+FROM python:3.12-slim-bookworm
+RUN pip install uv --quiet
 WORKDIR /predictionEngine
 COPY --from=builder /predictionEngine/.venv .venv
 COPY app/ app/
