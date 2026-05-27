@@ -44,6 +44,12 @@ jobs:
       - name: Setup Python/uv
         uses: astral-sh/setup-uv@v5
 
+      - name: Cache uv venv
+        uses: actions/cache@v4
+        with:
+          path: predictionEngine/.venv
+          key: uv-${{ hashFiles('predictionEngine/pyproject.toml') }}
+
       - name: Check (Prediction Engine)
         working-directory: ./predictionEngine
         run: uv sync --no-dev
