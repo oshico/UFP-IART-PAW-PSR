@@ -73,16 +73,16 @@ services:
       - MINIO_ENDPOINT=minio_bucket:9000
       - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
       - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
-      - MINIO_BUCKET=${ML_BUCKET_NAME}
+      - MINIO_BUCKET=${PE_BUCKET_NAME}
     depends_on:
       - postgis_db
       - minio_bucket
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ml.rule=Host(`terrawatch-ml.${DOMAIN}`)"
-      - "traefik.http.routers.ml.entrypoints=websecure"
-      - "traefik.http.routers.ml.tls.certresolver=cloudflare"
-      - "traefik.http.services.ml.loadbalancer.server.port=8000"
+      - "traefik.http.routers.pe.rule=Host(`terrawatch-pe.${DOMAIN}`)"
+      - "traefik.http.routers.pe.entrypoints=websecure"
+      - "traefik.http.routers.pe.tls.certresolver=cloudflare"
+      - "traefik.http.services.pe.loadbalancer.server.port=8000"
     networks:
       - proxy
 
@@ -92,6 +92,7 @@ services:
       dockerfile: Dockerfile
       args:
         - VITE_API_URL=${VITE_API_URL}
+        - VITE_PE_API_URL=${VITE_PE_API_URL}
     depends_on:
       - postgis_db
       - minio_bucket
