@@ -4,6 +4,7 @@ import { DISTRICTS } from "../../utils/constants";
 import { useAuth } from "../auth/hooks/useAuth";
 import { type MapMarker, MapView } from "../map/MapView";
 import { useFirePredictions, useRainPredictions } from "./hooks/usePredictions";
+import "./PredictionsTab.css";
 
 const CITIES = [
 	"Viana do Castelo",
