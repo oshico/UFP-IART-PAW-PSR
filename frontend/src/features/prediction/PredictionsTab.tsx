@@ -54,21 +54,14 @@ export function PredictionsTab() {
 				.map((p) => p.date.slice(5, 7)),
 		);
 		return [...months]
-			.map((m) => ({
-				value: m,
-				label: new Date(0, Number(m) - 1).toLocaleString("default", {
-					month: "long",
-				}),
-			}))
+			.map((m) => ({ value: m, label: new Date(0, Number(m) - 1).toLocaleString("default", { month: "long" }) }))
 			.sort((a, b) => Number(a.value) - Number(b.value));
 	}, [allPredictions, filterYear]);
 
 	const predictions = useMemo(() => {
 		let filtered = allPredictions;
-		if (filterYear)
-			filtered = filtered.filter((p) => p.date.startsWith(filterYear));
-		if (filterMonth && predictionType === "fire")
-			filtered = filtered.filter((p) => p.date.slice(5, 7) === filterMonth);
+		if (filterYear) filtered = filtered.filter((p) => p.date.startsWith(filterYear));
+		if (filterMonth && predictionType === "fire") filtered = filtered.filter((p) => p.date.slice(5, 7) === filterMonth);
 		return filtered;
 	}, [allPredictions, filterYear, filterMonth, predictionType]);
 
@@ -219,21 +212,19 @@ export function PredictionsTab() {
 						</select>
 					)}
 
-					{predictionType === "fire" &&
-						filterYear &&
-						availableMonths.length > 0 && (
-							<select
-								value={filterMonth}
-								onChange={(e) => setFilterMonth(e.target.value)}
-							>
-								<option value="">All Months</option>
-								{availableMonths.map((m) => (
-									<option key={m.value} value={m.value}>
-										{m.label}
-									</option>
-								))}
-							</select>
-						)}
+					{predictionType === "fire" && filterYear && availableMonths.length > 0 && (
+						<select
+							value={filterMonth}
+							onChange={(e) => setFilterMonth(e.target.value)}
+						>
+							<option value="">All Months</option>
+							{availableMonths.map((m) => (
+								<option key={m.value} value={m.value}>
+									{m.label}
+								</option>
+							))}
+						</select>
+					)}
 
 					<button type="button" onClick={handlePredict}>
 						Get Predictions
